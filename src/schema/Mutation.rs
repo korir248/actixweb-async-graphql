@@ -1,12 +1,23 @@
+
 use crate::{create_pool, models::User};
 
 // use super::Requests::ReqInput;
 use async_graphql::*;
 // use sqlx::{Pool, Postgres};
+
 pub struct Mutation;
 
 #[Object]
 impl Mutation {
+    pub async fn users(&self) -> Users {
+        Users
+    }
+}
+
+pub struct Users;
+
+#[Object]
+impl Users {
     pub async fn login(&self, username: String, password: String) -> Result<User> {
         let mut conn = create_pool().get().unwrap();
         println!("Logging in");

@@ -1,9 +1,15 @@
 mod models;
 mod schema;
-use std::env;
+use std::{collections::HashMap, env, str::FromStr};
 
 use actix_cors::Cors;
-use actix_web::{guard, web, web::Data, App, HttpResponse, HttpServer, Result};
+use actix_web::{
+    guard,
+    http::header::{self},
+    web,
+    web::Data,
+    App, HttpResponse, HttpServer, Result,
+};
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     EmptySubscription, Schema,
@@ -14,6 +20,7 @@ use diesel::{
     PgConnection,
 };
 use dotenvy::dotenv;
+use reqwest::header::{HeaderMap, HeaderValue};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -28,12 +35,11 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = Cors::default()
-            // .allowed_origin("http://localhost:4500")
-            // .allowed_origin("http://localhost:3000")
-            // .allowed_origin("http://localhost:4000")
-            // .supports_credentials()
-            .allow_any_origin()
-            .send_wildcard();
+            .allowed_origin("http://localhost:4500")
+            .allowed_origin("http://localhost:4000")
+            .allow_any_method()
+            .supports_credentials()
+            .allow_any_header();
         App::new()
             .wrap(cors)
             .app_data(Data::new(schema.clone()))
@@ -57,7 +63,16 @@ async fn index(
     schema: web::Data<Schema<schema::Query::Query, schema::Mutation::Mutation, EmptySubscription>>,
     req: GraphQLRequest,
 ) -> GraphQLResponse {
-    schema.execute(req.into_inner()).await.into()
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        header::ORIGIN,
+        HeaderValue::from_str("http://localhost:4500").unwrap(),
+    );
+    schema
+        .execute(req.into_inner())
+        .await
+        .http_headers(headers)
+        .into()
 }
 // to use GraphiQL instead
 //.body(GraphiQLSource::build().endpoint("/").finish()))

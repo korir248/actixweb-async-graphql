@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use async_graphql::Object;
 
 use crate::{create_pool, models::User};
@@ -11,13 +13,13 @@ impl Query {
         }
         Err("Error getting users".to_string())
     }
-    async fn user(&self, email: String) -> String {
+    async fn user(&self, email: String) -> Result<User,String> {
         let mut conn = create_pool().get().unwrap();
 
         if let Ok(x) = backend::get_user_by_email(&mut conn, email) {
-            return format!("User {} fetched successfully", x.username.unwrap());
+            return Ok(x.into())
         }
 
-        String::from("Error fetching user")
+        Err(String::from("Error fetching user"))
     }
 }
