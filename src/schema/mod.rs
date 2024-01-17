@@ -1,2 +1,3 @@
-pub mod Query;
-pub mod Mutation;
+pub mod mutation;
+pub mod query;
+pub mod subscription;

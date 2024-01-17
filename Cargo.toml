@@ -1,19 +1,21 @@
 [package]
-name = "graphql"
+name = "async-graphql-postgres"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "4.3.1"
-chrono = { version = "0.4.23", features = ["serde"] }
-serde = { version = "1.0.152", features = ["derive"] }
-sqlx = { version = "0.6.2", features = ["postgres", "runtime-actix-rustls", "chrono"] }
-async-graphql = "5.0.6"
-async-graphql-actix-web = "5.0.6"
+actix-web = "4.4.1"
+chrono = { version = "0.4.31", features = ["serde"] }
+serde = { version = "1.0.195", features = ["derive"] }
+async-graphql = "7.0.0"
+async-graphql-actix-web = "7.0.0"
 reqwest = { version = "0.11.14", features = ["json"] }
 backend={path="../profiles/backend"}
-dotenvy = "0.15.6"
+dotenvy = "0.15.7"
 diesel = { version = "2.0.0", features = ["postgres","chrono","r2d2"] }
-actix-cors = "0.6.4"
+actix-cors = "0.7.0"
+futures-util = "0.3.30"
+async-stream = "0.3.5"
+futures-timer = "3.0.2"
