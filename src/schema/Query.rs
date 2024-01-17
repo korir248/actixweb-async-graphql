@@ -1,10 +1,11 @@
-use std::error::Error;
+
 
 use async_graphql::Object;
 
 use crate::{create_pool, models::User};
 
 pub struct Query;
+
 #[Object]
 impl Query {
     async fn users(&self) -> Result<Vec<User>, String> {

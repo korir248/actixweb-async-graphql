@@ -1,6 +1,6 @@
 mod models;
 mod schema;
-use std::{collections::HashMap, env, str::FromStr};
+use std::{env, str::FromStr};
 
 use actix_cors::Cors;
 use actix_web::{

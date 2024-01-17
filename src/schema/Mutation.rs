@@ -1,4 +1,3 @@
-
 use crate::{create_pool, models::User};
 
 // use super::Requests::ReqInput;
