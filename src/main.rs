@@ -1,5 +1,4 @@
 #![allow(unused)]
-#![allow(dead_code)]
 mod models;
 mod schema;
 use schema::mutation::Mutation;
