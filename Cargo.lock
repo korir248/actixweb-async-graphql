@@ -521,6 +521,7 @@ dependencies = [
  "futures-util",
  "reqwest",
  "serde",
+ "tokio",
 ]
 
 [[package]]
