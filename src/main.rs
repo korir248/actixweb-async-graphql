@@ -1,6 +1,7 @@
 #![allow(unused)]
-mod models;
+pub mod models;
 mod schema;
+use async_graphql_postgres::PubSubHandler;
 use schema::mutation::Mutation;
 use schema::query::Query;
 use schema::subscription::Subscription;
@@ -10,22 +11,28 @@ use std::env;
 use actix_cors::Cors;
 use actix_web::{guard, web, App, HttpRequest, HttpResponse, HttpServer, Result};
 use async_graphql::{
+    extensions::Analyzer,
     http::{playground_source, GraphQLPlaygroundConfig, GraphiQLSource},
     EmptySubscription, Schema,
 };
-use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse, GraphQLSubscription, GraphQL};
+use async_graphql_actix_web::{GraphQL, GraphQLRequest, GraphQLResponse, GraphQLSubscription};
 use diesel::{
     r2d2::{ConnectionManager, Pool},
     PgConnection,
 };
 use dotenvy::dotenv;
 use reqwest::header::{HeaderMap, HeaderValue};
+use tokio::sync::Mutex;
+
+use crate::models::UserTest;
 
 type AppSchema = Schema<Query, Mutation, Subscription>;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let schema: AppSchema = Schema::build(Query, Mutation, Subscription)
+        .data(Mutex::new(PubSubHandler::<UserTest>::default()))
+        .extension(Analyzer)
         .enable_federation()
         .finish();
     println!("GraphiQL IDE: http://localhost:4000/");
