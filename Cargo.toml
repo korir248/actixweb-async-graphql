@@ -12,11 +12,13 @@ serde = { version = "1.0.195", features = ["derive"] }
 async-graphql = "7.0.0"
 async-graphql-actix-web = "7.0.0"
 reqwest = { version = "0.11.14", features = ["json"] }
-backend={path="../profiles/backend"}
+# backend={path="../profiles/backend"}
 dotenvy = "0.15.7"
 diesel = { version = "2.0.0", features = ["postgres","chrono","r2d2"] }
 actix-cors = "0.7.0"
 futures-util = "0.3.30"
 async-stream = "0.3.5"
 futures-timer = "3.0.2"
-tokio = "1.35.1"
+tokio = { version = "1.35.1", features = ["sync"] }
+async-std = "1.12.0"
+tokio-stream = "0.1.14"
