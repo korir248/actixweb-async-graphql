@@ -46,36 +46,36 @@ pub struct Education {
     description: String,
 }
 
-impl From<backend::models::User> for User {
-    fn from(user: backend::models::User) -> Self {
-        Self {
-            user_id: user.user_id,
-            username: user.username,
-            password: user.password,
-            email: Email {
-                address: user.email,
-                verified: user.is_verified,
-            },
-            user_type: user.user_type,
-            verification_code: user.verification_code,
-            bio: None,
-            blocked: false,
-            portfolio: None,
-            website: None,
-            address: None,
-            location: None,
-            cover_pic: None,
-            display_name: None,
-            gender: None,
-            reputation: None,
-            login_type: None,
-            last_seen: None,
-            paid_until: None,
-            profile_pic: None,
-            date: "today".to_string(),
-        }
-    }
-}
+// impl From<backend::models::User> for User {
+//     fn from(user: backend::models::User) -> Self {
+//         Self {
+//             user_id: user.user_id,
+//             username: user.username,
+//             password: user.password,
+//             email: Email {
+//                 address: user.email,
+//                 verified: user.is_verified,
+//             },
+//             user_type: user.user_type,
+//             verification_code: user.verification_code,
+//             bio: None,
+//             blocked: false,
+//             portfolio: None,
+//             website: None,
+//             address: None,
+//             location: None,
+//             cover_pic: None,
+//             display_name: None,
+//             gender: None,
+//             reputation: None,
+//             login_type: None,
+//             last_seen: None,
+//             paid_until: None,
+//             profile_pic: None,
+//             date: "today".to_string(),
+//         }
+//     }
+// }
 
 #[ComplexObject]
 impl User {
@@ -200,4 +200,9 @@ pub struct Projects {
     id: i32,
     name: String,
     year: String,
+}
+#[derive(Debug, SimpleObject, Clone)]
+pub struct UserTest {
+    pub id: i32,
+    pub name: String,
 }
