@@ -1,89 +1,63 @@
-use async_graphql::{Context, Result};
-use async_std::sync::Arc;
-use std::collections::{hash_map::Entry, HashMap};
-use tokio::sync::{
-    broadcast::{channel, Receiver, Sender},
-    Mutex, MutexGuard,
+pub mod graphql_schema;
+pub mod models;
+pub mod pubsub;
+mod schema;
+
+use async_graphql::{extensions::Analyzer, http::GraphiQLSource, Schema};
+use async_graphql_actix_web::GraphQLSubscription;
+use graphql_schema::mutation::Mutation;
+use graphql_schema::query::Query;
+use graphql_schema::subscription::Subscription;
+use models::User;
+use pubsub::PubSubHandler;
+use tokio::sync::Mutex;
+
+use std::env;
+
+use actix_web::{web, HttpRequest, HttpResponse, Result};
+
+use diesel::{
+    r2d2::{ConnectionManager, Pool},
+    PgConnection,
 };
+use dotenvy::dotenv;
 
-#[derive(Debug, Clone)]
-pub struct PubSubHandler<T>(Arc<Mutex<HashMap<String, Sender<T>>>>);
+pub type AppSchema = Schema<Query, Mutation, Subscription>;
 
-impl<T: Clone + Send> PubSubHandler<T> {
-    pub fn new() -> Self {
-        let map: HashMap<String, Sender<T>> = HashMap::new();
-
-        Self(Arc::new(Mutex::new(map)))
-    }
-    pub async fn is_empty(&self) -> bool {
-        self.0.lock().await.is_empty()
-    }
-
-    pub async fn subscribe(&mut self, channel_str: String) -> Receiver<T> {
-        println!("Subscribing to: {}", &channel_str);
-
-        match self.0.lock().await.entry(channel_str) {
-            Entry::Occupied(entry) => entry.get().subscribe(),
-            Entry::Vacant(e) => {
-                let (tx, _rx) = channel::<T>(1024);
-                e.insert(tx.clone());
-                tx.subscribe()
-            }
-        }
-    }
-
-    pub async fn publish(&mut self, channel_str: String, data: T) {
-        println!("Publishing data to: {}", &channel_str);
-
-        let tx = match self.0.lock().await.entry(channel_str) {
-            Entry::Occupied(entry) => entry.get().clone(),
-            Entry::Vacant(e) => {
-                let (tx, _rx) = channel::<T>(1024);
-                e.insert(tx.clone());
-                tx
-            }
-        };
-
-        match tx.send(data) {
-            Ok(_) => println!("Data sent successfully"),
-            Err(e) => eprintln!("Data could not be sent: {e}"),
-        }
-    }
+pub async fn index_graphiql() -> Result<HttpResponse> {
+    Ok(HttpResponse::Ok()
+        .content_type("text/html; charset=utf8")
+        .body(
+            GraphiQLSource::build()
+                .endpoint("/")
+                .subscription_endpoint("/")
+                .finish(),
+        ))
+}
+pub async fn index_ws(
+    schema: web::Data<AppSchema>,
+    req: HttpRequest,
+    payload: web::Payload,
+) -> Result<HttpResponse> {
+    GraphQLSubscription::new(Schema::clone(&*schema)).start(&req, payload)
 }
 
-impl<T: Clone + Send> Default for PubSubHandler<T> {
-    fn default() -> Self {
-        Self::new()
-    }
+pub fn create_pool() -> Pool<ConnectionManager<PgConnection>> {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+
+    Pool::builder()
+        .build(manager)
+        .expect("Failed to create pool.")
 }
 
-pub async fn get_pubsub_from_ctx<'a, T: Send + Clone + 'static>(
-    ctx: &'a Context<'a>,
-) -> Result<MutexGuard<'a, PubSubHandler<T>>> {
-    let pubsub_mutex = ctx.data::<Mutex<PubSubHandler<T>>>().map_err(|e| {
-        eprintln!("Pubsub could not be obtained");
-        e
-    })?;
-
-    let pubsub = pubsub_mutex.lock().await;
-
-    Ok(pubsub)
+pub fn build_schema() -> AppSchema {
+    Schema::build(Query, Mutation, Subscription::default())
+        .data(Mutex::new(PubSubHandler::<User>::default()))
+        .extension(Analyzer)
+        .enable_federation()
+        .finish()
 }
-// use std::{collections::HashMap, sync::Arc};
-
-// use async_std::channel;
-// use tokio::sync::broadcast::{Receiver, Sender};
-
-// pub struct Inner<T> {
-//     channels: Option<Receiver<T>>,
-// }
-// pub struct PubSubHandler<T> {
-//     sender: Sender<T>,
-//     channels: HashMap<String, Inner<T>>,
-// }
-
-// impl<T: Clone + Send> PubSubHandler<T> {
-//     pub async fn publish(&self, channel_id: String, data: T) {
-
-//     }
-// }
