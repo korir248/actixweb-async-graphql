@@ -1,6 +1,6 @@
 use crate::{
     create_pool,
-    models::{NewUser, User},
+    models::{Message, NewMessage, NewUser, User},
 };
 
 use crate::pubsub::get_pubsub_from_ctx;
@@ -13,6 +13,9 @@ pub struct Mutation;
 impl Mutation {
     pub async fn users(&self) -> Users {
         Users
+    }
+    pub async fn messages(&self) -> Messages {
+        Messages
     }
 }
 
@@ -71,5 +74,42 @@ impl Users {
             })?;
 
         Ok(user)
+    }
+}
+
+pub struct Messages;
+
+#[derive(InputObject)]
+pub struct IAddMessage {
+    sender: i32,
+    receiver: i32,
+    text: String,
+}
+
+#[Object]
+impl Messages {
+    pub async fn send_message(&self, ctx: &Context<'_>, input: IAddMessage) -> Result<Message> {
+        use crate::schema::messages::dsl::messages;
+        let mut conn = create_pool().get().unwrap();
+        let mut pub_sub = get_pubsub_from_ctx::<Message>(ctx).await?.clone();
+        println!("Sending message to: {}", &input.receiver);
+
+        let message = diesel::insert_into(messages)
+            .values(NewMessage {
+                sender: input.sender,
+                receiver: input.receiver,
+                text: input.text,
+            })
+            .get_result::<Message>(&mut conn)
+            .map_err(|e| {
+                eprintln!("ERROR: Failed to send message: {}", e);
+                e
+            })?;
+
+        pub_sub
+            .publish("new_message".to_string(), message.clone())
+            .await;
+
+        Ok(message)
     }
 }
