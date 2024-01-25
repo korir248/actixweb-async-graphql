@@ -5,9 +5,9 @@ mod schema;
 
 use async_graphql::{extensions::Analyzer, http::GraphiQLSource, Schema};
 use async_graphql_actix_web::GraphQLSubscription;
-use graphql_schema::mutation::Mutation;
-use graphql_schema::query::Query;
-use graphql_schema::subscription::Subscription;
+use graphql_schema::Mutation;
+use graphql_schema::Query;
+use graphql_schema::Subscription;
 use models::{Message, User};
 use pubsub::PubSubHandler;
 use tokio::sync::Mutex;
@@ -55,10 +55,14 @@ pub fn create_pool() -> Pool<ConnectionManager<PgConnection>> {
 }
 
 pub fn build_schema() -> AppSchema {
-    Schema::build(Query, Mutation, Subscription::default())
-        .data(Mutex::new(PubSubHandler::<User>::default()))
-        .data(Mutex::new(PubSubHandler::<Message>::default()))
-        .extension(Analyzer)
-        .enable_federation()
-        .finish()
+    Schema::build(
+        Query::default(),
+        Mutation::default(),
+        Subscription::default(),
+    )
+    .data(Mutex::new(PubSubHandler::<User>::default()))
+    .data(Mutex::new(PubSubHandler::<Message>::default()))
+    .extension(Analyzer)
+    .enable_federation()
+    .finish()
 }
