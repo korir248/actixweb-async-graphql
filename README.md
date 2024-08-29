@@ -32,7 +32,7 @@ git clone https://github.com/korir248/actixweb-async-graphql.git
  cd actixweb-async-graphql
  ```
 
- 3. Setup database with diesel cli tool using .env file
+3. Setup database with diesel cli tool using .env file
 
 Create a `.env` file using `.env.example.txt` as a template
 
@@ -40,13 +40,7 @@ Create a `.env` file using `.env.example.txt` as a template
 diesel setup
 ```
 
-1. Run the migrations
-
-```bash
-diesel migration run
-```
-
-6. Run the application:
+5. Run the application
 
 ```bash
 cargo run
