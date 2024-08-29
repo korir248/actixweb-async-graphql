@@ -23,13 +23,13 @@ cargo install diesel_cli --no-default-features --features postgres
 1. Clone the repository
 
 ```bash
-git clone https://github.com/korir248/postgres-async-graphql.git
+git clone https://github.com/korir248/actixweb-async-graphql.git
 ```
 
 2. Navigate to the project directory:
 
 ```bash
- cd postgres-async-graphql
+ cd actixweb-async-graphql
  ```
 
  3. Setup database with diesel cli tool using .env file
