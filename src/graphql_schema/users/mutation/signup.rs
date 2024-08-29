@@ -4,7 +4,7 @@ use crate::{
     pubsub::get_pubsub_from_ctx,
 };
 use async_graphql::{Context, InputObject, Object, Result};
-use diesel::RunQueryDsl;
+use diesel_async::RunQueryDsl;
 
 #[derive(Default)]
 pub struct Signup;
@@ -20,7 +20,7 @@ pub struct ISignup {
 impl Signup {
     pub async fn signup(&self, ctx: &Context<'_>, input: ISignup) -> Result<User> {
         use crate::schema::users::dsl::users;
-        let mut conn = create_pool().get().unwrap();
+        let mut conn = create_pool().get().await?;
 
         let mut pub_sub = get_pubsub_from_ctx::<User>(ctx).await?.clone();
         println!("Signing up: {}", &input.email);
@@ -32,6 +32,7 @@ impl Signup {
                 username: input.username,
             })
             .get_result::<User>(&mut conn)
+            .await
             .map_err(|e| {
                 eprintln!("Failed to register user: {}", e);
                 e

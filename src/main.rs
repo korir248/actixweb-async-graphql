@@ -1,6 +1,6 @@
-use async_graphql_actix_web::GraphQL;
 use actix_cors::Cors;
 use actix_web::{guard, web, App, HttpServer};
+use async_graphql_actix_web::GraphQL;
 use async_graphql_postgres::{build_schema, index_graphiql, index_ws};
 
 #[actix_web::main]

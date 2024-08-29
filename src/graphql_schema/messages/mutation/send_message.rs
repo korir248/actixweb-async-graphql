@@ -1,5 +1,5 @@
 use async_graphql::{Context, InputObject, Object, Result};
-use diesel::RunQueryDsl;
+use diesel_async::RunQueryDsl;
 
 use crate::{
     create_pool,
@@ -21,7 +21,7 @@ pub struct IAddMessage {
 impl SendMessage {
     pub async fn send_message(&self, ctx: &Context<'_>, input: IAddMessage) -> Result<Message> {
         use crate::schema::messages::dsl::messages;
-        let mut conn = create_pool().get().unwrap();
+        let mut conn = create_pool().get().await?;
         let mut pub_sub = get_pubsub_from_ctx::<Message>(ctx).await?.clone();
         println!("Sending message to: {}", &input.receiver);
 
@@ -32,6 +32,7 @@ impl SendMessage {
                 text: input.text,
             })
             .get_result::<Message>(&mut conn)
+            .await
             .map_err(|e| {
                 eprintln!("ERROR: Failed to send message: {}", e);
                 e
