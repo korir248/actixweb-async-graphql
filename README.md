@@ -1,4 +1,10 @@
 # GraphQL API with Rust, async-graphql, actix-web, and Postgres
+<p >
+  <a href="https://deps.rs/repo/github/korir248/actixweb-async-graphql"><img src="https://deps.rs/repo/github/korir248/actixweb-async-graphql/status.svg" alt="Dependency status"></a>
+  <a href="https://github.com/korir248/actixweb-async-graphql/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-informational" alt="License"></a>
+</p>
+
+
 
 This repository contains a template for building a GraphQL API using Rust🦀, async-graphql, actix-web, and Postgres.
 
