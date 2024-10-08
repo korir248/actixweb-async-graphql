@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.9.0"
-async-graphql = "7.0.7"
+async-graphql = "7.0.10"
 async-graphql-actix-web = "7.0.7"
 dotenvy = "0.15.7"
 diesel = { version = "2.2.3", features = ["postgres", "chrono", "r2d2"] }
