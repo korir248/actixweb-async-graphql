@@ -13,7 +13,7 @@ dotenvy = "0.15.7"
 diesel = { version = "2.2.3", features = ["postgres", "chrono", "r2d2"] }
 actix-cors = "0.7.0"
 futures-util = "0.3.30"
-tokio = { version = "1.39.3", features = ["sync"] }
+tokio = { version = "1.43.1", features = ["sync"] }
 tokio-stream = { version = "0.1.15", features = ["sync"] }
 async-std = "1.12.0"
 diesel_migrations = "2.2.0"
